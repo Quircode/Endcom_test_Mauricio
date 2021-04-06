@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">test_Endcom</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
