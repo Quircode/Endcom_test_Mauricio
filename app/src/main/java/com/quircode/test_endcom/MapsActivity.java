@@ -10,15 +10,26 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.quircode.test_endcom.Models.mainMapsModelImplementation;
+import com.quircode.test_endcom.Presenters.mainMapsPresenter;
+import com.quircode.test_endcom.Presenters.mainMapsPresenterImplementation;
+import com.quircode.test_endcom.Utilities.estacionesVo;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, mainMapsPresenter.View {
 
     private GoogleMap mMap;
+    mainMapsPresenter.Presenter presenter;
+    ArrayList<estacionesVo> myNewList=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        presenter = new mainMapsPresenterImplementation(this,new mainMapsModelImplementation(),this);
+        presenter.forShowEstaciones();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -40,8 +51,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        for (int i=0;i<myNewList.size();i++){
+            Double lat=Double.valueOf(myNewList.get(i).getLatitude());
+            Double lon=Double.valueOf(myNewList.get(i).getLongitude());
+            LatLng aNewmarkerToPlace = new LatLng(lat,lon);
+            mMap.addMarker(new MarkerOptions().position(aNewmarkerToPlace).title(myNewList.get(i).getName()));
+            if (i == 10)
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(aNewmarkerToPlace));
+            mMap.setMinZoomPreference(14.0f);
+        }
+
+    }
+
+    @Override
+    public void showEstaciones(ArrayList<estacionesVo> Estaciones) {
+        myNewList=Estaciones;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.onViewDestroy();
     }
 }
